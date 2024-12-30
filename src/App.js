@@ -7,7 +7,7 @@ function App() {
   const [users, setUsers] = useState([]);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
-  const [id,setId] = useState(0);
+  const [id, setId] = useState(0);
   const [editUser, setEditUser] = useState(false);
 
   useEffect(() => {
@@ -16,49 +16,39 @@ function App() {
 
   const handleEdit = (id) => {
     setEditUser(true);
-    if (id > 0) {
-      const data_new = [...data];
-      const dt = data_new.filter((item) => item.id === id);
-      if (dt !== undefined) {
-        setName(dt[0].name);
-        setEmail(dt[0].email);
-        setId(dt[0].id);
-      }
+    const user = users.find((user) => user.id === id);
+    if (user) {
+      setName(user.name);
+      setEmail(user.email);
+      setId(user.id);
     }
   };
 
   const handleDelete = (id) => {
-    if (id > 0) {
-      if (window.confirm("Are You Sure")) {
-        const dt = data.filter((item) => item.id !== id);
-        setUsers(dt);
-      }
+    if (window.confirm("Are you sure you want to delete this user?")) {
+      const updatedUsers = users.filter((user) => user.id !== id);
+      setUsers(updatedUsers);
+      toastr.success("User Deleted Successfully");
     }
   };
 
   const handleSave = () => {
-    const dt = [...data];
-    const formData = {
-      id:dt.length + 1,
-      name:name,
-      email:email,
+    const newUser = {
+      id: users.length > 0 ? users[users.length - 1].id + 1 : 1,
+      name,
+      email,
     };
-    dt.push(formData);
-    setUsers(dt);
-    toastr.success('User Created Successfully');
+    setUsers([...users, newUser]);
+    toastr.success("User Created Successfully");
     handleClear();
   };
 
   const handleUpdate = () => {
-    const index = data
-      .map((item) => {
-        return item.id;
-      })
-      .indexOf(id);
-    const dt = [...data];
-    dt[index].name = name;
-    dt[index].email = email;
-    setUsers(dt);
+    const updatedUsers = users.map((user) =>
+      user.id === id ? { ...user, name, email } : user
+    );
+    setUsers(updatedUsers);
+    toastr.success("User Updated Successfully");
     handleClear();
   };
 
@@ -66,19 +56,25 @@ function App() {
     setEditUser(false);
     setName("");
     setEmail("");
+    setId(0);
   };
 
   const handleSearch = (value) => {
-    const dt = [...data];
-    const filteredrows = dt.filter((item) => item.name.includes(value.toLowerCase()) || item.email.includes(value.toLowerCase()));
-    setUsers(filteredrows);
+    const searchValue = value.toLowerCase();
+    const filteredUsers = users.filter((user) => user.name.toLowerCase().includes(searchValue) ||
+      user.email.toLowerCase().includes(searchValue)
+    );
+    setUsers(filteredUsers);
   };
 
   return (
     <div className="App">
-
       <div>
-        <input type="text" placeholder="Search" onChange={(e) => handleSearch(e.target.value)} />
+        <input
+          type="text"
+          placeholder="Search"
+          onChange={(e) => handleSearch(e.target.value)}
+        />
       </div>
       <div
         style={{
@@ -107,16 +103,16 @@ function App() {
           />
         </div>
         <div>
-          {editUser === false ? (
-            <button className="btn btn-primary" onClick={() => handleSave()}>
-              Save
-            </button>
-          ) : (
-            <button className="btn btn-primary" onClick={() => handleUpdate()}>
+          {editUser ? (
+            <button className="btn btn-primary" onClick={handleUpdate}>
               Update
             </button>
+          ) : (
+            <button className="btn btn-primary" onClick={handleSave}>
+              Save
+            </button>
           )}
-          <button className="btn btn-danger" onClick={() => handleClear()}>
+          <button className="btn btn-danger" onClick={handleClear}>
             Clear
           </button>
         </div>
@@ -128,6 +124,7 @@ function App() {
             <td>Id</td>
             <td>Name</td>
             <td>Email</td>
+            <td>Actions</td>
           </tr>
         </thead>
         <tbody>
