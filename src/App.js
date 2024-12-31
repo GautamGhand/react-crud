@@ -61,10 +61,12 @@ function App() {
 
   const handleSearch = (value) => {
     const searchValue = value.toLowerCase();
-    const filteredUsers = users.filter((user) => user.name.toLowerCase().includes(searchValue) ||
-      user.email.toLowerCase().includes(searchValue)
+    const filteredRows = users.filter(
+      (item) =>
+        item.name.toLowerCase().includes(searchValue) ||
+        item.email.toLowerCase().includes(searchValue)
     );
-    setUsers(filteredUsers);
+    setUsers(filteredRows);
   };
 
   return (
